@@ -2,6 +2,9 @@ from itertools import groupby
 import sqlite3
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_bootstrap import Bootstrap5
+from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField, SelectField
+from wtforms.validators import DataRequired
 
 
 def get_db_connection():
@@ -31,3 +34,23 @@ def index():
 
     conn.close()
     return render_template('index.html', lists=lists)
+
+
+@app.route('/create', methods=['GET', 'POST'])
+def create():
+    conn = get_db_connection()
+    lists = conn.execute('SELECT title FROM lists;').fetchall()
+    form = TodoForm()
+    conn.close()
+
+    return render_template('create.html', form=form, lists=lists)
+
+
+class TodoForm(FlaskForm):
+    title = SelectField(
+        label='Title', validators=[DataRequired()],
+        choices=[(1, 'Work'), (2, 'Home'), (3, 'Study')],
+        default=1, coerce=int
+    )
+    content = StringField('Content', validators=[DataRequired()])
+    submit = SubmitField('Submit')

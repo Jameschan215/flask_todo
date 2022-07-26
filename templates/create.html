@@ -8,19 +8,4 @@
     {{ form.hidden_tag() }}
     {{ render_form(form) }}
 
-    {% if form.title.errors %}
-        <ul class="errors">
-            {% for error in form.title.errors %}
-                <li>{{ error }}</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
-    {% if form.content.errors %}
-        <ul class="errors">
-            {% for error in form.content.errors %}
-                <li>{{ error }}</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
-
 {% endblock %}

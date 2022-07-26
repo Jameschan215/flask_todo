@@ -41,16 +41,32 @@ def create():
     conn = get_db_connection()
     lists = conn.execute('SELECT title FROM lists;').fetchall()
     form = TodoForm()
-    conn.close()
+    form.title.choices = [(i, item['title']) for (i, item) in enumerate(lists)]
 
+    if form.validate_on_submit():
+        content = form.content.data
+
+        # 这里 form.title.data 获取的是choices列表中元组的第一项，即(0, 'Work')中的0,
+        # 为了取出Work，要把choices转成字典，把data，也就是0，当作键值，才能实现。
+        list_title = dict(form.title.choices).get(form.title.data)
+
+        if not content:
+            flash('Content is required!')
+
+        list_id = conn.execute('SELECT id FROM lists WHERE title = (?);', (list_title,)).fetchone()['id']
+        conn.execute('INSERT INTO items (list_id, content) VALUES (?, ?);', (list_id, content))
+        conn.commit()
+        conn.close()
+        return redirect(url_for('index', title=list_title))
+
+    conn.close()
     return render_template('create.html', form=form, lists=lists)
 
 
 class TodoForm(FlaskForm):
-    title = SelectField(
-        label='Title', validators=[DataRequired()],
-        choices=[(1, 'Work'), (2, 'Home'), (3, 'Study')],
-        default=1, coerce=int
-    )
+
+    title = SelectField('Title', coerce=int)
     content = StringField('Content', validators=[DataRequired()])
     submit = SubmitField('Submit')
+
+

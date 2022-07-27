@@ -24,7 +24,7 @@ bootstrap = Bootstrap5(app)
 def index():
     conn = get_db_connection()
     todos = conn.execute(
-        'SELECT i.content, l.title FROM items i JOIN lists l ON i.list_id = l.id ORDER BY l.title;'
+        'SELECT i.id, i.done, i.content, l.title FROM items i JOIN lists l ON i.list_id = l.id ORDER BY l.title;'
     ).fetchall()
 
     lists = {}
@@ -63,10 +63,55 @@ def create():
     return render_template('create.html', form=form, lists=lists)
 
 
-class TodoForm(FlaskForm):
+@app.route('/<int:id>/do', methods=['POST'])
+def do(id):
+    conn = get_db_connection()
+    conn.execute('UPDATE items SET done = 1 WHERE id = ?', (id,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('index'))
 
+
+@app.route('/<int:id>/undo', methods=['POST'])
+def undo(id):
+    conn = get_db_connection()
+    conn.execute('UPDATE items SET done = 0 WHERE id = ?', (id,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('index'))
+
+
+@app.route('/<int:id>/edit', methods=['GET', 'POST'])
+def edit(id):
+    conn = get_db_connection()
+    todo = conn.execute(
+        'SELECT i.id, i.list_id, i.done, i.content, l.title \
+        FROM items i JOIN lists l ON i.list_id = l.id WHERE i.id = ?',
+        (id,)
+    ).fetchone()
+    lists = conn.execute('SELECT title FROM lists;').fetchall()
+    form = TodoForm()
+    form.title.choices = [(i, item['title']) for (i, item) in enumerate(lists)]
+
+    if form.validate_on_submit():
+        content = form.content.data
+        list_title = form.title.choices.get(form.title.data)
+
+        if not content:
+            flash('Content is required!')
+            return redirect(url_for('edit', id=id))
+
+        list_id = conn.execute('SELECT id FROM lists WHERE title = ?', (list_title,)).fetchone()['id']
+        form.title.default = (list_id, list_title)
+
+        conn.execute('UPDATE items SET content = ?, list_id = ? WHERE id = ?', (content, list_id, id))
+        conn.commit()
+        conn.close()
+        return redirect(url_for('index'))
+    return render_template('edit.html', form=form, todo=todo, lists=lists)
+
+
+class TodoForm(FlaskForm):
     title = SelectField('Title', coerce=int)
     content = StringField('Content', validators=[DataRequired()])
     submit = SubmitField('Submit')
-
-

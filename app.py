@@ -41,7 +41,7 @@ def create():
     conn = get_db_connection()
     lists = conn.execute('SELECT title FROM lists;').fetchall()
     form = TodoForm()
-    form.title.choices = [(i, item['title']) for (i, item) in enumerate(lists)]
+    form.title.choices = [(i + 1, item['title']) for (i, item) in enumerate(lists)]
 
     if form.validate_on_submit():
         content = form.content.data
@@ -89,29 +89,43 @@ def edit(id):
         FROM items i JOIN lists l ON i.list_id = l.id WHERE i.id = ?',
         (id,)
     ).fetchone()
+
     lists = conn.execute('SELECT title FROM lists;').fetchall()
     form = TodoForm()
-    form.title.choices = [(i, item['title']) for (i, item) in enumerate(lists)]
+
+    # i starts from 0, lists starts from 1, so i plus 1
+    form.title.choices = [(i + 1, item['title']) for (i, item) in enumerate(lists)]
+
+    # This line will not get new content data
+    # form.content.data = todo['content']
+
+    # Set SelectField's data with value of list's index plus 1
+    form.title.data = todo['list_id']
+    # form.title.default = todo['list_id']
+    # form.process()
+    # If you use 'default', you have to use 'process()' to make it work, but process will break csrf.
+    # So you can just change 'default' to 'data', that works well and will not break anything.
 
     if form.validate_on_submit():
         content = form.content.data
-        list_title = form.title.choices.get(form.title.data)
+        list_title = dict(form.title.choices).get(form.title.data)
 
         if not content:
             flash('Content is required!')
             return redirect(url_for('edit', id=id))
 
+        flash(f'Content is "{content}"!')
+
         list_id = conn.execute('SELECT id FROM lists WHERE title = ?', (list_title,)).fetchone()['id']
-        form.title.default = (list_id, list_title)
 
         conn.execute('UPDATE items SET content = ?, list_id = ? WHERE id = ?', (content, list_id, id))
         conn.commit()
         conn.close()
         return redirect(url_for('index'))
-    return render_template('edit.html', form=form, todo=todo, lists=lists)
+    return render_template('edit.html', form=form)
 
 
 class TodoForm(FlaskForm):
-    title = SelectField('Title', coerce=int)
+    title = SelectField('Title', coerce=int, validators=[DataRequired()])
     content = StringField('Content', validators=[DataRequired()])
     submit = SubmitField('Submit')

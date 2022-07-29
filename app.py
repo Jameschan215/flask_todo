@@ -42,7 +42,9 @@ def create():
     lists = conn.execute('SELECT title FROM lists;').fetchall()
     form = TodoForm()
     form.title.choices = [(i + 1, item['title']) for (i, item) in enumerate(lists)]
+    form.new_list_title.render_kw = {'placeholder': 'New Title...'}
     form.content.render_kw = {'placeholder': 'Do something...'}
+
 
     if form.validate_on_submit():
         content = form.content.data
@@ -50,6 +52,16 @@ def create():
         # 这里 form.title.data 获取的是choices列表中元组的第一项，即(0, 'Work')中的0,
         # 为了取出Work，要把choices转成字典，把data，也就是0，当作键值，才能实现。
         list_title = dict(form.title.choices).get(form.title.data)
+        new_list = form.new_list_title.data
+
+        if list_title == 'New List' and new_list:
+            li = conn.execute('SELECT * FROM lists WHERE title = ?', (new_list,))
+            if li:
+                flash('Same title!')
+                return redirect(url_for('create'))
+            conn.execute('INSERT INTO lists (title) VALUES (?)', (new_list,))
+            conn.commit()
+            list_title = new_list
 
         if not content:
             flash('Content is required!')
@@ -104,6 +116,8 @@ def edit(id):
 
     # Set SelectField's data with value of list's index plus 1
     form.title.data = todo['list_id']
+    form.new_list_title.render_kw = {'placeholder': 'New Title...'}
+
     # form.title.default = todo['list_id']
     # form.process()
     # If you use 'default', you have to use 'process()' to make it work, but process will break csrf.
@@ -140,4 +154,9 @@ def delete(id):
 class TodoForm(FlaskForm):
     title = SelectField('Title', coerce=int, validators=[DataRequired()])
     content = StringField('Content', validators=[DataRequired()])
+    new_list_title = StringField('New List', validators=[DataRequired()])
+
     submit = SubmitField('Submit')
+
+
+

@@ -10,6 +10,7 @@ cur = connection.cursor()
 # Write fake data in
 
 # Write title in lists
+cur.execute('INSERT INTO lists (title) VALUES (?)', ('New List',))
 cur.execute('INSERT INTO lists (title) VALUES (?)', ('Work',))
 cur.execute('INSERT INTO lists (title) VALUES (?)', ('Home',))
 cur.execute('INSERT INTO lists (title) VALUES (?)', ('Study',))

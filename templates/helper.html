@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+function displayResult()
+{
+var x=document.getElementById("mySelect").selectedIndex;
+var y=document.getElementById("mySelect").options;
+alert("Index: " + y[x].index + " is " + y[x].text);
+}
+function displayName()
+{
+    let x=document.getElementById("mySelect").selectedIndex;
+    let y = document.getElementById("james")
+
+    if (x == 2)
+    {
+    y.style.display = 'inline';
+    }else{
+        y.style.display = 'none'
+    }
+}
+</script>
+</head>
+<body>
+
+<form>
+Select your favorite fruit:
+<select id="mySelect" onchange="displayName()">
+<option>Apple</option>
+<option>Orange</option>
+<option>Pineapple</option>
+<option>Banana</option>
+</select>
+<br />
+
+<p id='james' style="display:none">Input your name</p>
+
+</form>
+
+<button type="button" onclick="displayName()">Display index</button>
+
+</body>
+</html>

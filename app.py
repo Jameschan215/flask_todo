@@ -42,6 +42,7 @@ def create():
     lists = conn.execute('SELECT title FROM lists;').fetchall()
     form = TodoForm()
     form.title.choices = [(i + 1, item['title']) for (i, item) in enumerate(lists)]
+    form.content.render_kw = {'placeholder': 'Do something...'}
 
     if form.validate_on_submit():
         content = form.content.data
@@ -96,8 +97,10 @@ def edit(id):
     # i starts from 0, lists starts from 1, so i plus 1
     form.title.choices = [(i + 1, item['title']) for (i, item) in enumerate(lists)]
 
-    # This line will not get new content data
+    # 这一行会把原有的值带入content的form中，但是当你submit的时候，新值不会带回来，content.data依然是原来的值
     # form.content.data = todo['content']
+    # 使用render_kw可以完美解决这个问题
+    form.content.render_kw = {'value': todo['content']}
 
     # Set SelectField's data with value of list's index plus 1
     form.title.data = todo['list_id']

@@ -128,6 +128,15 @@ def edit(id):
     return render_template('edit.html', form=form)
 
 
+@app.route('/<int:id>/delete', methods=['POST'])
+def delete(id):
+    conn = get_db_connection()
+    conn.execute('DELETE FROM items WHERE id = ?', (id,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('index'))
+
+
 class TodoForm(FlaskForm):
     title = SelectField('Title', coerce=int, validators=[DataRequired()])
     content = StringField('Content', validators=[DataRequired()])

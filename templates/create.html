@@ -5,14 +5,46 @@
 {% block content %}
     <h1>{% block title %} Create a New Item {% endblock %}</h1>
 
-    <form method="post">
+    <form method="post" class="form-group">
         {{ form.hidden_tag() }}
 
-        {{ render_field(form.title) }}
+        Title:
+        <select id="title-select" onchange="displayNewTitle()" class="form-control">
+            {% for title in lists %}
+                <option>{{ title['title'] }}</option>
+            {% endfor %}
+        </select>
+
         {{ render_field(form.content) }}
-        {{ render_field(form.new_list_title) }}
+
+        <span id="new-title">
+            {{ render_field(form.new_list_title) }}
+        </span>
+
         {{ render_field(form.submit) }}
 
     </form>
 
+
+
 {% endblock %}
+
+{% block scripts %}
+    <!-- Optional JavaScript -->
+    <script>
+    function displayNewTitle()
+    {
+        let selector =document.getElementById("title-select").selectedIndex;
+        let newTitle = document.getElementById("new-title")
+
+        if (selector == 0)
+        {
+            newTitle.style.display = 'inline';
+
+        }else{
+            newTitle.style.display = 'none';
+        }
+    }
+    </script>
+{% endblock %}
+

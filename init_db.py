@@ -16,13 +16,13 @@ cur.execute('INSERT INTO lists (title) VALUES (?)', ('Home',))
 cur.execute('INSERT INTO lists (title) VALUES (?)', ('Study',))
 
 # Write content and id of list in items
-cur.execute('INSERT INTO items (list_id, content) VALUES (?, ?)', (1, 'Morning meeting'))
+cur.execute('INSERT INTO items (list_id, content) VALUES (?, ?)', (2, 'Morning meeting'))
 
-cur.execute('INSERT INTO items (list_id, content) VALUES (?, ?)', (2, 'Buy fruit'))
-cur.execute('INSERT INTO items (list_id, content) VALUES (?, ?)', (2, 'Cook dinner'))
+cur.execute('INSERT INTO items (list_id, content) VALUES (?, ?)', (3, 'Buy fruit'))
+cur.execute('INSERT INTO items (list_id, content) VALUES (?, ?)', (3, 'Cook dinner'))
 
-cur.execute('INSERT INTO items (list_id, content) VALUES (?, ?)', (3, 'Learn Flask'))
-cur.execute('INSERT INTO items (list_id, content) VALUES (?, ?)', (3, 'Learn SQLite'))
+cur.execute('INSERT INTO items (list_id, content) VALUES (?, ?)', (4, 'Learn Flask'))
+cur.execute('INSERT INTO items (list_id, content) VALUES (?, ?)', (4, 'Learn SQLite'))
 
 # commit to database and close the connection
 connection.commit()

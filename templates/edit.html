@@ -1,12 +1,53 @@
 {% extends 'base.html' %}
-{% from 'bootstrap5/form.html' import render_form %}
+{% from 'bootstrap5/form.html' import render_field %}
 
 
 {% block content %}
 
     <h1>{% block title %} Edit an Item {% endblock %}</h1>
 
-    {{ form.hidden_tag() }}
-    {{ render_form(form) }}
+    <form method="post">
+        {{ form.hidden_tag() }}
+
+        {{ render_field(form.title, id='title-select', onchange='displayNewTitle()') }}
+        {{ render_field(form.content) }}
+
+        <!-- Surrounding the field with <div> tag, you can hide and display the field and its label -->
+        <!-- If not, you can just hide the field itself, and the label would not be impacted -->
+        <div id="new-title">
+            {{ render_field(form.new_list_title, id="new-title") }}
+        </div>
+
+        {{ render_field(form.submit) }}
+    </form>
+
+{% endblock %}
+
+{% block scripts %}
+    <!-- Optional JavaScript -->
+    <script>
+        <!-- Since the edited item must have a title, so hide the new list title field  -->
+        window.onload = hideNew;
+
+        function displayNewTitle()
+        {
+            let selector =document.getElementById("title-select").selectedIndex;
+            let newTitle = document.getElementById("new-title")
+
+            if (selector == 0)
+            {
+                newTitle.style.display = 'inline';
+
+            }else{
+                newTitle.style.display = 'none';
+            }
+        }
+
+        function hideNew()
+        {
+            let newTitle = document.getElementById("new-title");
+            newTitle.style.display = 'none';
+        }
+    </script>
 
 {% endblock %}

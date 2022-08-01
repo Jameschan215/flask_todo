@@ -45,7 +45,6 @@ def create():
     form.new_list_title.render_kw = {'placeholder': 'New Title...'}
     form.content.render_kw = {'placeholder': 'Do something...'}
 
-
     if form.validate_on_submit():
         content = form.content.data
 
@@ -55,7 +54,7 @@ def create():
         new_list = form.new_list_title.data
 
         if list_title == 'New List' and new_list:
-            li = conn.execute('SELECT * FROM lists WHERE title = ?', (new_list,))
+            li = conn.execute('SELECT * FROM lists WHERE title = ?', (new_list,)).fetchone()
             if li:
                 flash('Same title!')
                 return redirect(url_for('create'))
@@ -106,7 +105,6 @@ def edit(id):
     lists = conn.execute('SELECT title FROM lists;').fetchall()
     form = TodoForm()
 
-    # i starts from 0, lists starts from 1, so i plus 1
     form.title.choices = [(i + 1, item['title']) for (i, item) in enumerate(lists)]
 
     # 这一行会把原有的值带入content的form中，但是当你submit的时候，新值不会带回来，content.data依然是原来的值
@@ -126,15 +124,22 @@ def edit(id):
     if form.validate_on_submit():
         content = form.content.data
         list_title = dict(form.title.choices).get(form.title.data)
+        new_list = form.new_list_title.data
 
+        if list_title == 'New List' and new_list:
+            li = conn.execute('SELECT * FROM lists WHERE title = ?', (new_list,))
+            if li:
+                flash('Same title!')
+                return redirect(url_for('create'))
+
+            conn.execute('INSERT INTO lists (title) VALUES (?)', (new_list,))
+            conn.commit()
+            list_title = new_list
         if not content:
             flash('Content is required!')
             return redirect(url_for('edit', id=id))
 
-        flash(f'Content is "{content}"!')
-
         list_id = conn.execute('SELECT id FROM lists WHERE title = ?', (list_title,)).fetchone()['id']
-
         conn.execute('UPDATE items SET content = ?, list_id = ? WHERE id = ?', (content, list_id, id))
         conn.commit()
         conn.close()
@@ -154,10 +159,6 @@ def delete(id):
 class TodoForm(FlaskForm):
     title = SelectField('Title', coerce=int, validators=[DataRequired()])
     content = StringField('Content', validators=[DataRequired()])
-    new_list_title = StringField('New List', validators=[DataRequired()])
+    new_list_title = StringField('New List')
 
     submit = SubmitField('Submit')
-
-
-
-

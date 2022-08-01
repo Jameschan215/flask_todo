@@ -5,24 +5,19 @@
 {% block content %}
     <h1>{% block title %} Create a New Item {% endblock %}</h1>
 
-    <form method="post" class="form-group">
+    <form method="post">
         {{ form.hidden_tag() }}
 
-        Title:
-        <select id="title-select" onchange="displayNewTitle()" class="form-control">
-            {% for title in lists %}
-                <option>{{ title['title'] }}</option>
-            {% endfor %}
-        </select>
-
+        {{ render_field(form.title, id='title-select', onchange='displayNewTitle()') }}
         {{ render_field(form.content) }}
 
-        <span id="new-title">
-            {{ render_field(form.new_list_title) }}
-        </span>
+        <!-- Surrounding the field with <div> tag, you can hide and display the field and its label -->
+        <!-- If not, you can just hide the field itself, and the label would not be impacted -->
+        <div id="new-title">
+            {{ render_field(form.new_list_title, id="new-title") }}
+        </div>
 
         {{ render_field(form.submit) }}
-
     </form>
 
 
@@ -32,19 +27,20 @@
 {% block scripts %}
     <!-- Optional JavaScript -->
     <script>
-    function displayNewTitle()
-    {
-        let selector =document.getElementById("title-select").selectedIndex;
-        let newTitle = document.getElementById("new-title")
-
-        if (selector == 0)
+        function displayNewTitle()
         {
-            newTitle.style.display = 'inline';
+            let selector =document.getElementById("title-select").selectedIndex;
+            let newTitle = document.getElementById("new-title")
 
-        }else{
-            newTitle.style.display = 'none';
+            if (selector == 0)
+            {
+                newTitle.style.display = 'inline';
+
+            }else{
+                newTitle.style.display = 'none';
+            }
         }
-    }
     </script>
+
 {% endblock %}
 

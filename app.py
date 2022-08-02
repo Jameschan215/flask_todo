@@ -28,9 +28,24 @@ def index():
     ).fetchall()
 
     lists = {}
+    for k, g in groupby(todos, key=lambda t: t['title']):
+        # Create an empty list for items
+        items = []
 
-    for key, group in groupby(todos, key=lambda row: row['title']):
-        lists[key] = list(group)
+        # Go through each to-do item row in the groupby() grouper object
+        for item in g:
+            assignees = conn.execute(
+                'SELECT a.id, a.name FROM assignees a JOIN item_assignees i_a '
+                'ON a.id = i_a.assignee_id WHERE i_a.item_id = ?',
+                (item['id'],)
+            ).fetchall()
+
+            # Convert the item row into a dictionary to add assignees
+            item = dict(item)
+            item['assignees'] = assignees
+            items.append(item)
+
+        lists[k] = items
 
     conn.close()
     return render_template('index.html', lists=lists)

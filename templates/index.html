@@ -20,27 +20,36 @@
                             {% set BUTTON = 'Undo' %}
                         {% endif %}
 
-                    <div class="row">
+                        <div class="row">
 
-                        <div class="col-12 col-md-3">
-                            <form action="{{ url_for(URL, id=item['id']) }}" method="post">
-                                <input type="submit" value="{{ BUTTON }}" class="btn btn-success btn-sm">
-                            </form>
+                            <div class="col-12 col-md-3">
+                                <form action="{{ url_for(URL, id=item['id']) }}" method="post">
+                                    <input type="submit" value="{{ BUTTON }}" class="btn btn-success btn-sm">
+                                </form>
+                            </div>
+
+                            <div class="col-md-3 col-12">
+                                <a href="{{ url_for('edit', id = item['id']) }}" class="btn btn-warning btn-sm">
+                                    Edit
+                                </a>
+                            </div>
+
+                            <div class="col-md-3 col-12">
+                                <form action="{{ url_for('delete', id=item['id']) }}" method="post">
+                                    <input type="submit" value="Delete" class="btn btn-danger btn-sm">
+                                </form>
+                            </div>
+
                         </div>
 
-                        <div class="col-md-3 col-12">
-                            <a href="{{ url_for('edit', id = item['id']) }}" class="btn btn-warning btn-sm">
-                                Edit
-                            </a>
-                        </div>
+                        <hr>
+                        {% if item['assignees'] %}
+                            <span style="color:#6a6a6a">Assigned to</span>
+                            {% for assignee in item['assignees'] %}
+                                <span class="badge bg-primary">{{ assignee['name'] }}</span>
+                            {% endfor %}
+                        {% endif %}
 
-                        <div class="col-md-3 col-12">
-                            <form action="{{ url_for('delete', id=item['id']) }}" method="post">
-                                <input type="submit" value="Delete" class="btn btn-danger btn-sm">
-                            </form>
-                        </div>
-
-                    </div>
                     </li>
                 {% endfor %}
             </ul>

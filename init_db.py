@@ -24,6 +24,23 @@ cur.execute('INSERT INTO items (list_id, content) VALUES (?, ?)', (3, 'Cook dinn
 cur.execute('INSERT INTO items (list_id, content) VALUES (?, ?)', (4, 'Learn Flask'))
 cur.execute('INSERT INTO items (list_id, content) VALUES (?, ?)', (4, 'Learn SQLite'))
 
+cur.execute('INSERT INTO assignees (name) VALUES (?)', ('Sammy',))
+cur.execute('INSERT INTO assignees (name) VALUES (?)', ('Jo',))
+cur.execute('INSERT INTO assignees (name) VALUES (?)', ('Charlie',))
+cur.execute('INSERT INTO assignees (name) VALUES (?)', ('Ashley',))
+
+# Assign 'Morning meeting' to 'Sammy'
+cur.execute('INSERT INTO item_assignees (item_id, assignee_id) VALUES (?, ?)', (1, 1))
+
+# Assign 'Morning meeting' to 'Jo'
+cur.execute('INSERT INTO item_assignees (item_id, assignee_id) VALUES (?, ?)', (1, 2))
+
+# Assign 'Morning meeting' to 'Ashley'
+cur.execute('INSERT INTO item_assignees (item_id, assignee_id) VALUES (?, ?)', (1, 4))
+
+# Assign 'Buy fruit' to 'Sammy'
+cur.execute('INSERT INTO item_assignees (item_id, assignee_id) VALUES (?, ?)', (2, 1))
+
 # commit to database and close the connection
 connection.commit()
 connection.close()
